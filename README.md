@@ -59,6 +59,22 @@ Demonstrar todas as etapas do desenvolvimento de um sistema backend em Java, des
 
 ---
 
+## 🔧 Melhoria aplicada
+
+Refatoração de código com foco em boas práticas de desenvolvimento:
+
+🔁 Eliminação de duplicação: métodos auxiliares foram criados para centralizar lógicas repetidas, como busca de card e validação de colunas.
+
+🧼 Código mais limpo e legível: nomes de métodos e variáveis foram padronizados para refletir melhor suas responsabilidades.
+
+🧠 Manutenção facilitada: a estrutura modular permite evolução do sistema com menor risco de regressão.
+
+🧪 Preparação para testes: separação de responsabilidades e injeção de dependências tornam o código mais testável.
+
+Essa melhoria contribui diretamente para a escalabilidade e confiabilidade do projeto.
+
+---
+
 ## 🛠️ Tecnologias utilizadas
 
 - **Java 17+**
