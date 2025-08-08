@@ -3,6 +3,7 @@ package br.com.ca.service;
 import br.com.ca.exception.CardBlockedException;
 import br.com.ca.exception.CardFinishedException;
 import br.com.ca.exception.EntityNotFoundException;
+import br.com.ca.persistence.dao.BlockDAO;
 import br.com.ca.persistence.dao.CardDAO;
 import br.com.ca.dto.BoardColumnInfoDTO;
 import br.com.ca.dto.CardDetailsDTO;
@@ -71,7 +72,7 @@ public class CardService {
             CardDAO dao = new CardDAO(connection);
             Optional<CardDetailsDTO> optional = dao.findById(cardId);
             CardDetailsDTO dto = optional.orElseThrow(
-                    () -> new EntityNotFoundException("O card de id %s não foi encontrado".formatted(cardId)));
+                    () -> new EntityNotFoundException("Card com id %s não encontrado".formatted(cardId)));
             if(dto.blocked()){
                 throw new CardBlockedException("Não é possível mover um card bloqueado.");
             }
@@ -106,7 +107,7 @@ public class CardService {
                 throw new CardBlockedException("O card já está bloqueado.");
             }
             BoardColumnInfoDTO currentColumn = boardColumnsInfo.stream()
-                    .filter(bc -> bc.id().equals(cardId))
+                    .filter(bc -> bc.id().equals(dto.columnId()))
                     .findFirst().orElseThrow();
             if(currentColumn.kind().equals(FINAL) || currentColumn.kind().equals(CANCEL)){
                 String message = "Card em coluna do tipo %s não pode ser bloqueado."
@@ -114,6 +115,29 @@ public class CardService {
                 throw  new IllegalStateException(message);
 
             }
+            BlockDAO blockDAO = new BlockDAO(connection);
+            blockDAO.block(cardId, reason);
+            connection.commit();
+        }catch (SQLException ex){
+            connection.rollback();
+            throw ex;
+        }
+
+    }
+
+    public void unblock(final Long cardId, final String reason) throws SQLException{
+        try{
+            CardDAO dao = new CardDAO(connection);
+            Optional<CardDetailsDTO> optional = dao.findById(cardId);
+            CardDetailsDTO dto = optional.orElseThrow(
+                    () -> new EntityNotFoundException("O card de id %s não foi encontrado".formatted(cardId)));
+            if(!dto.blocked()){
+                throw new CardBlockedException("O card não está bloqueado.");
+            }
+
+            BlockDAO blockDAO = new BlockDAO(connection);
+            blockDAO.unblock(cardId, reason);
+
             connection.commit();
         }catch (SQLException ex){
             connection.rollback();
